@@ -1,0 +1,132 @@
+import pygame
+pygame.init()
+screen = pygame.display.set_mode((1200, 800))
+pygame.display.set_caption("Pattern Generator")
+
+# Define colors
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+BROWN = (139, 69, 19)  
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+PURPLE = (128, 0, 128)
+YELLOW = (255, 255, 0)
+BLUE = (173, 216, 230)
+
+
+# Starting settings
+current_color = RED
+current_shape = "triangle"
+SHAPE_SIZE = 40
+
+scale = 1
+
+# List of shapes (each shape is: [x, y, size, color, type])
+shapeList = [] #this is going to be a LIST of LISTS!
+
+# Initialize font for instructions
+font = pygame.font.Font(None, 36)
+
+# Main game loop-------------------------------------------------------------------------------------
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+        # Check for key presses
+        elif event.type == pygame.KEYDOWN:
+            
+            #numbers select what shape to draw
+            if event.key == pygame.K_1:
+                current_shape = "ellipse"  # Select ellipse
+            elif event.key == pygame.K_2:
+                current_shape = "hexagon"  # Select hexagon
+            elif event.key == pygame.K_3:
+                current_shape = "triangle"  # Select triangle
+            elif event.key == pygame.K_4:
+                current_shape = "line"  # Select decagon
+            elif event.key == pygame.K_5:
+                current_shape = "square"  # Select cross
+                
+            #letters select what color to draw with
+            if event.key == pygame.K_r:
+                current_color = RED  # Change to red
+            elif event.key == pygame.K_g:
+                current_color = GREEN  # Change to green
+            elif event.key == pygame.K_b:
+                current_color = BROWN  # Change to brown
+            elif event.key == pygame.K_p:
+                current_color = PURPLE  # Change to purple
+            elif event.key == pygame.K_y:
+                current_color = YELLOW  # Change to purple
+            
+            if event.key == pygame.K_EQUALS and pygame.K_LSHIFT:
+                print("add")
+                size += 1
+            elif event.key == pygame.K_MINUS:
+                print("minus")
+                size -= 1
+            elif event.key == pygame.K_UP:
+                # Increase size of the most recently drawn shape
+                if shapeList:
+                    shapeList[-1][2] += 5  # Increase size by 5
+            elif event.key == pygame.K_DOWN:
+                # Decrease size of the most recently drawn shape
+                if shapeList:
+                    shapeList[-1][2] -= 5  # Decrease size by 5
+
+        # Check for mouse click
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            new_shape = [mouse_x, mouse_y, SHAPE_SIZE, current_color, current_shape]
+            shapeList.append(new_shape)  # Add new shape to the list
+
+    # Clear the screen
+    screen.fill(BLUE)
+
+    # Draw all shapes directly in the loop
+    for i in range(len(shapeList)):
+        x = shapeList[i][0]
+        y = shapeList[i][1]
+        size = shapeList[i][2]
+        color = shapeList[i][3]
+        kind = shapeList[i][4]
+
+        #print(x, y ,size)
+
+        print(scale)
+
+        if kind == "ellipse":
+            pygame.draw.ellipse(screen, color, (x - size, y - size // 2, size * 2 * scale, size * scale))  # Ellipse dimensions
+        elif kind == "hexagon":
+            points = [
+                (x, y - size * scale),  # Top
+                (x + size * scale, y - size // 2 * scale),  # Top-right
+                (x + size * scale, y + size // 2 * scale),  # Bottom-right
+                (x, y + size * scale),  # Bottom
+                (x - size * scale, y + size // 2 * scale),  # Bottom-left
+                (x - size * scale, y - size // 2 * scale)   # Top-left
+            ]
+            pygame.draw.polygon(screen, color, points)
+        elif kind == "triangle":
+            points = [
+                (x, y - size * scale),           # Top point
+                (x - size * scale, y + size * scale),    # Bottom-left point
+                (x + size * scale, y + size * scale)     # Bottom-right point
+            ]
+            pygame.draw.polygon(screen, color, points)
+        elif kind == "line":
+            pygame.draw.line(screen, color, [x-size * scale, y+size * scale], [x+size * scale, y-size * scale], 5 * scale)
+        elif kind == "square":
+            pygame.draw.rect(screen, color, (x-size//.5 * scale, y-size//.5 * scale, size*4 * scale, size*4 * scale))
+
+    # Display instructions at the top
+    instructions = font.render("1: Ellipse  2: Hexagon  3: Triangle  4: line  5: square |  R: Red  G: Green  B: Brown  P: purple Y: yellow", True, BLACK)
+    
+    screen.blit(instructions, (10, 10))
+
+    # Update the screen
+    pygame.display.flip()
+
+pygame.quit()
